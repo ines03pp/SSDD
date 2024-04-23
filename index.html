@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Plan&Go</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('myForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Evitar el envío del formulario por defecto
+    // Enviar el formulario usando fetch
+    fetch('/create_post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre: document.querySelector('input[name="nombre"]').value,
+                email: document.querySelector('input[name="email"]').value
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirigir a index.html si la respuesta es satisfactoria
+                window.location.href = 'index.html';
+            } else {
+                throw new Error('Error al crear el usuario');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // Función para obtener la lista de usuarios del servidor
+    function getUserList() {
+        fetch('/usuarios')
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Error al obtener la lista de usuarios');
+            })
+            .then(users => {
+                displayUsers(users);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Mostrar los usuarios en la página
+    function displayUsers(users) {
+        const userList = document.getElementById('userList');
+        userList.innerHTML = '';
+        users.forEach(user => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<strong>${user.nombre}</strong> - ${user.email}
+                                  <button class="editBtn" data-id="${user.id}">Editar</button>
+                                  <button class="deleteBtn" data-id="${user.id}">Eliminar</button>`;
+            userList.appendChild(listItem);
+        });
+
+        // Asignar manejadores de eventos a los botones de editar y eliminar
+        document.querySelectorAll('.editBtn').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = button.getAttribute('data-id');
+                editUser(userId);
+            });
+        });
+
+        document.querySelectorAll('.deleteBtn').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = button.getAttribute('data-id');
+                deleteUser(userId);
+            });
+        });
+    }
+
+    // Función para editar un usuario
+    function editUser(userId) {
+        const newName = prompt('Ingrese el nuevo nombre del usuario:');
+        const newEmail = prompt('Ingrese el nuevo correo electrónico:');
+        if (newName && newEmail) {
+            fetch(`/usuarios/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nombre: newName, email: newEmail })
+            })
+            .then(response => {
+                if (response.ok) {
+                    getUserList();
+                } else {
+                    throw new Error('Error al editar el usuario');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    }
+
+    // Función para eliminar un usuario
+    function deleteUser(userId) {
+        if (confirm('¿Está seguro de que desea eliminar este usuario?')) {
+            fetch(`/usuarios/${userId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    getUserList();
+                } else {
+                    throw new Error('Error al eliminar el usuario');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    }
+
+    // Llamar a la función para obtener la lista de usuarios al cargar la página
+    getUserList();
+});
+
+</script>
+
+<body>
+    <!-- Navbar Start -->
+    <div class="container-fluid position-relative nav-bar p-0">
+        <div class="container-lg position-relative p-0 px-lg-3" style="z-index: 9;">
+            <nav class="navbar navbar-expand-lg bg-light navbar-light shadow-lg py-3 py-lg-0 pl-3 pl-lg-5">
+                <a href="" class="navbar-brand">
+                    <h1 class="m-0 text-primary"><span class="text-dark">PLAN&</span>GO</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between px-3" id="navbarCollapse">
+                    <div class="navbar-nav ml-auto py-0">
+                        <a href="index" class="nav-item nav-link active">Inicio</a>
+                        <a href="about.html" class="nav-item nav-link">Sobre nosotros</a>
+                        <a href="service.html" class="nav-item nav-link">Inspírame</a>
+                        
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Destinos</a>
+                            <div class="dropdown-menu border-0 rounded-0 m-0">
+                                <a href="package.html" class="dropdown-item">Islas Baleares</a>
+                                <a href="packageAndalucia.html" class="dropdown-item">Andalucia</a>
+                                <a href="packageCastilla.html" class="dropdown-item">Castilla y León</a>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Carousel Start -->
+    <div class="container-fluid p-0">
+        <div id="header-carousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                   
+                    <video class="w-100" autoplay muted loop> 
+                        <source src="Vídeo 20-3-24, 11 48 20.mov" type="video/mp4">
+                    </video>
+                    <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                        <div class="p-3" style="max-width: 900px;">
+                            <h1 class="display-3 text-white mb-md-4">¿Necesitas inspiración?</h1>
+                            <a href="service.html" class="btn btn-primary py-md-3 px-md-5 mt-2">Inspírame</a>
+                        </div>
+                    </div>
+                </div>
+             
+           
+        </div>
+    </div>
+    <!-- Carousel End -->
+    
+
+
+    <!-- Destination Start -->
+    <div class="container-fluid py-5">
+        <div class="container pt-5 pb-3">
+            <div class="text-center mb-3 pb-3">
+                <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Destinos</h6>
+                <h1>Explora los destinos mas top</h1>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="destination-item position-relative overflow-hidden mb-2">
+                        <img class="img-fluid" src="img/islasBaleares.jpeg" alt="">
+                        <a class="destination-overlay text-white text-decoration-none" href="package.html">
+                            <h5 class="text-white">Islas Baleares</h5>
+                            
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="destination-item position-relative overflow-hidden mb-2">
+                        <img class="img-fluid" src="img/granada_foto.jpg" alt="">
+                        <a class="destination-overlay text-white text-decoration-none" href="packageAndalucia.html">
+                            <h5 class="text-white">Andalucía</h5>
+                            
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="destination-item position-relative overflow-hidden mb-2">
+                        <img class="img-fluid" src="img/castillaLeon.jpg" alt="">
+                        <a class="destination-overlay text-white text-decoration-none" href="packageCastilla.html">
+                            <h5 class="text-white">Castilla y León</h5>
+                            
+                        </a>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+    <!-- Destination Start -->
+
+    <!-- Registration Start -->
+    <div class="container-fluid bg-registration py-5" style="margin: 90px 0;">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-7 mb-5 mb-lg-0">
+                    <div class="mb-4">
+                        <h1 class="text-white"><span class="text-primary">¿Y si </span>viajamos de verdad?</h1>
+                    </div>
+                    
+                </div>
+                <div class="col-lg-5">
+                    <div class="card border-0">
+                        <div class="card-header bg-primary text-center p-4">
+                            <h1 class="text-white m-0">Regístrate</h1>
+                        </div>
+                        <div class="card-body rounded-bottom bg-white p-5">
+                                
+                                <form action="/create_post" method="post" id="myForm" enctype="application/json">
+                                    <label for="nombre" >Nombre: </label>
+                                    <input type='text' name='nombre' required="required"/> <br/>
+                                    <label for="email">Email: </label>
+                                    <input type='email' name='email' required="required"/> <br/>
+                                    <button type="submit" id="submitButton">Regístrate ahora</button>
+                                </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Registration End -->
+    <!-- List of users -->
+<div class="container">
+    <h1>Lista de Usuarios</h1>
+    <ul id="userList">
+        
+    </ul>
+</div>
+<!-- Form to edit -->
+<div id="editUserForm" style="display: none;">
+    <h2>Editar Usuario</h2>
+    <form id="editForm">
+        <input type="hidden" id="editUserId" name="id">
+        <div>
+            <label for="editUserName">Nombre:</label>
+            <input type="text" id="editUserName" name="nombre">
+        </div>
+        <div>
+            <label for="editUserEmail">Email:</label>
+            <input type="email" id="editUserEmail" name="email">
+        </div>
+        <button type="submit">Guardar cambios</button>
+        <button type="button" onclick="cancelEdit()">Cancelar</button>
+    </form>
+</div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 py-5 px-sm-3 px-lg-5" style="margin-top: 90px;">
+        <div class="row pt-5">
+            <div class="col-lg-3 col-md-6 mb-5">
+                <a href="" class="navbar-brand">
+                    <h1 class="text-primary"><span class="text-white">PLAN&</span>GO</h1>
+                </a>
+                <h6 class="text-white text-uppercase mt-4 mb-3" style="letter-spacing: 5px;">Síguenos</h6>
+                <div class="d-flex justify-content-start">
+                    <a class="btn btn-outline-primary btn-square mr-2" href="#"><i class="fab fa-twitter"></i></a>
+                    <a class="btn btn-outline-primary btn-square mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-outline-primary btn-square mr-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a class="btn btn-outline-primary btn-square" href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h5 class="text-white text-uppercase mb-4" style="letter-spacing: 5px;">Servicios</h5>
+                <div class="d-flex flex-column justify-content-start">
+                    <a class="text-white-50 mb-2" href="about.html"><i class="fa fa-angle-right mr-2"></i>Sobre nosotros</a>
+                    <a class="text-white-50 mb-2" href="service.html"><i class="fa fa-angle-right mr-2"></i>Inspírame</a>
+                    <a class="text-white-50 mb-2" href="destination.html"><i class="fa fa-angle-right mr-2"></i>Destinos</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                
+                <h6 class="text-white text-uppercase mt-4 mb-3" style="letter-spacing: 5px;">Newsletter</h6>
+                <div class="w-100">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-light" style="padding: 25px;" placeholder="Email">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary px-3">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid bg-dark text-white border-top py-4 px-sm-3 px-md-5" style="border-color: rgba(256, 256, 256, .1) !important;">
+        <div class="row">
+            <div class="col-lg-6 text-center text-md-left mb-3 mb-md-0">
+                <p class="m-0 text-white-50">Copyright &copy; <a href="#">Plan&Go</a>. All Rights Reserved.</a>
+                </p>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Footer End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="mail/jqBootstrapValidation.min.js"></script>
+    <script src="mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
